@@ -1,0 +1,55 @@
+Test suite for Angie.
+
+Use prove to run tests as one usually do for perl tests.  Individual tests
+may be run as well.
+
+Note: tests run Angie (and backend daemons if needed) listening on localhost
+and may use various ports in 8000 .. 8999 range.
+
+Usage:
+
+    $ TEST_ANGIE_BINARY=/path/to/angie prove .
+
+By default tests expect Angie binary to be at ../objs/angie.
+
+Environment variables:
+
+TEST_ANGIE_BINARY
+
+    Sets path to Angie binary to be tested, defaults to "../objs/angie".
+
+TEST_ANGIE_MODULES
+
+    Sets path to modules directory, defaults to dirname of TEST_ANGIE_BINARY.
+
+TEST_ANGIE_VERBOSE
+
+    Be a bit more verbose (in particular, print requests sent and responses
+    got from Angie).  Note that this requires prove -v (or HARNESS_VERBOSE).
+
+TEST_ANGIE_LEAVE
+
+    If set, temporary directory with configs and logs won't be deleted on test
+    completion.  Useful for debugging.
+
+TEST_ANGIE_CATLOG
+
+    Cat error log to stdout after test completion.  Useful for debugging.
+
+TEST_ANGIE_UNSAFE
+
+    Run unsafe tests.
+
+TEST_ANGIE_GLOBALS
+
+    Sets additional directives in main context.
+
+TEST_ANGIE_GLOBALS_HTTP
+
+    Sets additional directives in http context.
+
+TEST_ANGIE_GLOBALS_STREAM
+
+    Sets additional directives in stream context.
+
+Happy testing!

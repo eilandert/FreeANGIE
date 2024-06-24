@@ -1,0 +1,713 @@
+<?xml version="1.0" ?>
+<!DOCTYPE change_log SYSTEM "../../dtd/changes.dtd" >
+
+
+<change_log title="Angie">
+
+
+<changes ver="1.5.2" date="2024-05-31">
+
+<change type="security">
+<para lang="ru">
+при использовании HTTP/3 обработка специально созданной QUIC-сессии могла
+приводить к падению рабочего процесса, отправке клиенту содержимого памяти
+рабочего процесса на системах с MTU больше 4096 байт и иметь другие последствия
+(CVE-2024-32760, CVE-2024-31079, CVE-2024-35200, CVE-2024-34161);
+исправление портировано из nginx 1.26.1.
+</para>
+<para lang="en">
+when using HTTP/3, processing of a specially crafted QUIC session could
+cause a worker process crash, worker process memory disclosure on systems
+with MTU larger than 4096 bytes, or have other impact (CVE-2024-32760,
+CVE-2024-31079, CVE-2024-35200, CVE-2024-34161);
+the fix has been ported from nginx 1.26.1.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.5.1" date="2024-05-16">
+
+<change type="change">
+<para lang="ru">
+теперь ACME-клиенты не игнорируют ранее сохраненные сертификаты, если они
+просрочены или выпущены для отличающегося списка доменных имён, а используют их,
+пока идет обновление.
+</para>
+<para lang="en">
+now ACME clients do not discard previously stored certificates that were expired
+or issued for a different domain list, but use them while renewing.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+механизм "proxy_next_upstream" работал некорректно при использовании
+опции "resolve" директивы "server" в блоке "upstream", если количество
+полученных IP-адресов отличалось от числа заданных серверов.
+</para>
+<para lang="en">
+the "proxy_next_upstream" mechanism did not work correctly when using
+the "resolve" option of the "server" directive in the "upstream" block
+if the number of resolved IP addresses differed from the number of specified
+servers.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+при запросе сертификата по протоколу ACME могла произойти ошибка сегментации
+в рабочем процессе.
+</para>
+<para lang="en">
+while requesting a certificate via the ACME protocol, a segmentation fault
+could occur in a worker process.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+механизм "slow_start" не срабатывал при проксировании TCP-соединений
+в модуле "stream".
+</para>
+<para lang="en">
+the "slow_start" mechanism did not work when proxying TCP connections
+in the "stream" module.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+запросы HTTP/3 могли завершаться с ошибкой, если они были присланы
+как TLS 1.3 early data; проблема появилась в 1.4.0.
+</para>
+<para lang="en">
+HTTP/3 requests could result in an error if received
+as TLS 1.3 early data; the bug had appeared in 1.4.0.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+HTTP/3-соединение могло закрываться преждевременно при использовании 0-RTT
+в QUIC.
+</para>
+<para lang="en">
+HTTP/3 connection could be prematurely closed while using 0-RTT in QUIC.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+при чтении тела запроса из быстрого соединения было возможно чтение в течение
+долгого времени.
+Спасибо Максиму Дунину (freenginx).
+</para>
+<para lang="en">
+when reading a request body from a fast connection, reading for a long time
+was possible.
+Thanks to Maxim Dounin (freenginx).
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.5.0" date="2024-03-27">
+
+<change type="feature">
+<para lang="ru">
+начальная поддержка автоматического получения и обновления сертификатов
+по протоколу ACME, конфигурируемая с помощью директив "acme_client" и "acme",
+а также переменных вида "$acme_cert_*" и "$acme_cert_key_*".
+</para>
+<para lang="en">
+basic support for automatically obtaining and updating certificates
+using the ACME protocol, configurable with the "acme_client" and "acme"
+directives, as well as variables of the form "$acme_cert_*"
+and "$acme_cert_key_*".
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+настройка автоматического перенаправления для добавления слеша в конец URI
+запроса с помощью директивы "auto_redirect".
+</para>
+<para lang="en">
+configuration of automatic redirection, which adds trailing slashes to request
+URIs, with the "auto_redirect" directive.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вывод содержащих даты метрик в формате временных меток Unix вместо ISO 8601
+для использования в Prometheus, а также в JSON API при запросе с аргументом
+"?date=epoch".
+</para>
+<para lang="en">
+output statistics metrics with dates in Epoch format instead of ISO 8601 for
+use in Prometheus and optionally in the JSON API with the "?date=epoch" request
+argument.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+новый статус "recovering" у проксируемых серверов в API статистики, означающий,
+что сервер медленно восстанавливается после сбоя согласно опции "slow_start".
+</para>
+<para lang="en">
+new "recovering" state for upstream peers in the statistics API, indicating that
+a peer is slowly starting up after a failure, as suggested by the "slow_start"
+option.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+теперь ключ "-V" показывает также релевантную версию nginx, что полезно для
+совместимости со сторонними утилитами, в частности certbot.
+Спасибо AdvTechnoKing.
+</para>
+<para lang="en">
+now the "-V" switch also shows the relevant version of nginx, which is useful
+for compatibility with third-party utilities, certbot in particular.
+Thanks to AdvTechnoKing.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.25.4.
+</para>
+<para lang="en">
+all functionality of nginx 1.25.4.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+если был зайдествован механизм переиспользования SSL-сессий
+("proxy_ssl_session_reuse"), то при динамическом обновлении списка
+проксируемых серверов могла происходить утечка из зоны разделяемой
+памяти ("zone"), настроенной для соответствующего блока "upstream".
+</para>
+<para lang="en">
+if the SSL session reuse mechanism "proxy_ssl_session_reuse" was used and
+the list of proxied servers was dynamically updated, a leak could occur in
+the shared memory zone configured for the corresponding "upstream" block.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.4.1" date="2024-02-15">
+
+<change type="security">
+<para lang="ru">
+при использовании HTTP/3 в рабочем процессе во время обработки специально
+созданной QUIC-сессии могла произойти ошибка сегментации (CVE-2024-24989); при
+этом Angie, начиная ещё с версии 1.4.0, не подвержен уязвимости CVE-2024-24990.
+</para>
+<para lang="en">
+when using HTTP/3, a segmentation error may have occured in a worker process
+while processing a specially crafted QUIC session (CVE-2024-24989); note that
+Angie as of 1.4.0 is already not vulnerable to CVE-2024-24990.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.4.0" date="2023-12-12">
+
+<change type="feature">
+<para lang="ru">
+поддержка HTTP/3-соединений с upstream-серверами в прокси-модуле HTTP,
+допускающая использование клиентами произвольных версий HTTP.
+Конфигурация осуществляется с помощью директивы "proxy_http_version"
+и набора директив "proxy_quic_" и "proxy_http3_".
+</para>
+<para lang="en">
+support for establishing HTTP/3 connections to upstream servers in the HTTP
+proxy module while allowing clients to use arbitrary HTTP versions.
+Configuration is done with the "proxy_http_version" directive
+and a set of "proxy_quic_" and "proxy_http3_" directives.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+механизм плавного ввода проксируемого сервера в работу после сбоя
+с помощью опции "slow_start" директивы "server" в блоке "upstream".
+</para>
+<para lang="en">
+a mechanism for smoothly bringing the proxied server online after a failure
+using the "slow_start" option of the "server" directive in the "upstream" block.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+директива "mqtt_preread" модуля "stream", позволяющая помещать имя пользователя
+и идентификатор клиента из пакета CONNECT протокола MQTT в переменные
+$mqtt_preread_username и $mqtt_preread_clientid.
+</para>
+<para lang="en">
+"mqtt_preread" directive in the "stream" module, which allows extracting
+the username and client id from the CONNECT packet of the MQTT protocol into
+the $mqtt_preread_username and $mqtt_preread_clientid variables.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+ограничение скорости отдачи MP4-файлов клиенту пропорционально битрейту
+с помощью директив "mp4_limit_rate" и "mp4_limit_rate_after", снижающее
+нагрузку на полосу пропускания.
+</para>
+<para lang="en">
+limiting the response rate of MP4 files transmission to the client
+proportionally to the bitrate using the "mp4_limit_rate" and
+"mp4_limit_rate_after" directives, which reduces the bandwidth load.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.25.3.
+</para>
+<para lang="en">
+all functionality of nginx 1.25.3.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+если проксируемый сервер был единственным в группе, то он мог некорректно
+учитываться как "unavailable" в API статистики даже после восстановления
+работоспособности.
+</para>
+<para lang="en">
+if a proxied server was the only one in a group, it could be incorrectly
+reported as "unavailable" in the statistics API even after recovery.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.3.2" date="2023-11-23">
+
+<change type="bugfix">
+<para lang="ru">
+были возможны некорректные значения метрик в формате Prometheus, в значениях
+которых использовались отличные от $p8s_value переменные; на практике
+проблема могла наблюдаться с "angie_http_upstreams_peers_state"
+и "angie_stream_upstreams_peers_state" из стандартного шаблона
+"prometheus_all.conf".
+</para>
+<para lang="en">
+possible incorrect values of metrics in Prometheus output that used variables
+other than $p8s_value for their values; in practice the issue could occur with
+"angie_http_upstreams_peers_state" and "angie_stream_upstreams_peers_state"
+from the standard "prometheus_all.conf" template.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+некоторые попытки соединения с проксируемыми серверами могли не учитываться
+соответствующим образом в API статистики, если ошибка происходила моментально;
+проблема появилась в 1.3.0.
+</para>
+<para lang="en">
+some connection attempts to upstream servers might not have been properly
+accounted for in the statistics API if they failed immediately;
+the bug had appeared in 1.3.0.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.3.1" date="2023-10-18">
+
+<change type="security">
+<para lang="ru">
+добавлены дополнительные ограничения при обработке потоков HTTP/2, чтобы лучше
+противостоять DoS-атаке "HTTP/2 Rapid Reset" (CVE-2023-44487).
+</para>
+<para lang="en">
+added extra limitations to HTTP/2 stream handling for better protection against
+the DoS attack known as "HTTP/2 Rapid Reset" (CVE-2023-44487).
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.3.0" date="2023-09-19">
+
+<change type="feature">
+<para lang="ru">
+возможность указывать в директиве "location" несколько строк для сопоставления,
+что позволяет объединить несколько блоков "location" с одинаковыми настройками
+и, таким образом, упростить конфигурацию за счет уменьшения дублирования.
+</para>
+<para lang="en">
+ability to specify multiple match patterns in the "location" directive,
+which allows to combine several "location" blocks with similar settings
+and therefore simplify configuration by reducing duplication.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+экспорт различных метрик статистики в формате Prometheus с гибко настраиваемыми
+шаблонами при помощи новых директив "prometheus" и "prometheus_template".
+</para>
+<para lang="en">
+export of varied statistics metrics in Prometheus format with flexible template
+configuration using the new "prometheus" and "prometheus_template" directives.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+детальная информация и метрики по группам проксируемых stream-серверов в
+интерфейсе статистики, предоставляемом директивой "api".
+</para>
+<para lang="en">
+detailed information and metrics for groups of stream upstream servers
+in the statistics interface provided by the "api" directive.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+опция "resolve" директивы "server" в блоке "upstream" модуля "stream",
+позволяющая отслеживать изменения списка IP-адресов, соответствующего
+доменному имени, и автоматически обновлять его без перезагрузки конфигурации.
+</para>
+<para lang="en">
+the "resolve" option of the "server" directive in the "stream" module’s
+"upstream" block that allows to monitor changes to the list of IP addresses
+corresponding to a domain name, and automatically update it without the need
+of reloading configuration.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+опция "service" директивы "server" в блоке "upstream" модуля "stream",
+позволяющая получать списки адресов из DNS-записей SRV, с базовой поддержкой
+приоритета.
+</para>
+<para lang="en">
+the "service" option of the "server" directive in the "stream" module’s
+"upstream" block that allows to retrieve lists of addresses from DNS SRV
+records, with basic priority support.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+получение содержимого конфигурационных файлов, с которыми было запущено текущее
+поколение рабочих процессов, в интерфейсе, предоставляемом директивой "api"
+при включении директивы "api_config_files".
+</para>
+<para lang="en">
+access to the contents of configuration files used by the current generation of
+worker processes via the interface provided by the "api" directive with the
+"api_config_files" directive enabled.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+отображение номера поколения конфигурации в именах процессов, что позволяет
+с помощью утилиты "ps" отслеживать успех перезагрузок конфигурации и количество
+поколений рабочих процессов с предыдущими версиями конфигурации.
+</para>
+<para lang="en">
+display of the configuration generation number in process titles, which allows
+to monitor the success of configuration reloads and the number of previous
+worker process generations using the "ps" utility.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.25.2.
+</para>
+<para lang="en">
+all functionality of nginx 1.25.2.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+сборка завершалась ошибкой при использовании опций ./configure
+"--without-http_upstream_zone_module"
+или "--without-stream_upstream_zone_module";
+ошибка появилась в 1.2.0.
+</para>
+<para lang="en">
+compilation failed when ./configure options
+"--without-http_upstream_zone_module"
+or "--without-stream_upstream_zone_module" were used;
+the bug had appeared in 1.2.0.
+</para>
+</change>
+
+<change type="change">
+<para lang="ru">
+теперь при загрузке конфигурации OpenSSL используется appname "angie".
+</para>
+<para lang="en">
+now appname "angie" is used when loading the OpenSSL configuration.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.2.0" date="2023-05-30">
+
+<change type="feature">
+<para lang="ru">
+директива "sticky" и сопутствующие настройки в блоке "upstream" HTTP-модуля,
+позволяющие задать режим привязки сессий, при котором все запросы в рамках
+сессии будут направляться на один и тот же сервер.
+</para>
+<para lang="en">
+the "sticky" directive and related options in the HTTP module "upstream"
+block, that allow to configure sticky sessions mode, where all requests of
+the session are routed to the same server.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+переменная $upstream_sticky_status, принимающая значения "NEW", "HIT" или "MISS"
+в зависимости от успеха направления запроса на релевантный проксируемый сервер с
+включенной привязкой сессий.
+</para>
+<para lang="en">
+the $upstream_sticky_status variable, that takes either "NEW", "HIT" or "MISS"
+values depending on success of requesting related upstream server with sticky
+sessions enabled.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+поддержка NTLS в HTTP и stream модулях при использовании TLS библиотеки TongSuo,
+которую можно включить опцией сборки "--with-ntls" и сконфигурировать
+с помощью соответствующих директив "ssl_ntls" и "proxy_ssl_ntls".
+</para>
+<para lang="en">
+support for NTLS in the HTTP and stream modules using TongSuo TLS library,
+that can be enabled via the "--with-ntls" build time option and configured
+with the "ssl_ntls" and "proxy_ssl_ntls" corresponding directives.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+в HTTP и stream прокси-модулях теперь можно настраивать несколько сертификатов
+разного типа (RSA и ECDSA) и соответствующих им ключей, используя директивы
+"proxy_ssl_certificate" и "proxy_ssl_certificate_key".
+</para>
+<para lang="en">
+in the HTTP and stream proxy-modules ability to specify multiple certificates
+with different types (RSA and ECDSA) and corresponding keys, using the
+"proxy_ssl_certificate" and "proxy_ssl_certificate_key" directives.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вывод версии и сборки в отображаемом имени "master" процесса, что позволяет
+с помощью утилиты "ps" получить эту информацию о работающем экземпляре сервера.
+</para>
+<para lang="en">
+display of version and build name in the "master" process title, which allows
+to get this information about a running server instance using the "ps" utility.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+возможность сжатия модулем gzip ответов со статусом "207 Multi-Status".
+Спасибо DBotThePony.
+</para>
+<para lang="en">
+ability to compress of "207 Multi-Status" responses by the gzip module.
+Thanks to DBotThePony.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.25.0, включая поддержку HTTP/3.
+</para>
+<para lang="en">
+all functionality of nginx 1.25.0, including HTTP/3 support.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.1.0" date="2023-01-24">
+
+<change type="feature">
+<para lang="ru">
+опция "resolve" директивы "server" в блоке "upstream" HTTP-модуля,
+позволяющая отслеживать изменения списка IP-адресов,
+соответствующего доменному имени,
+и автоматически обновлять его без перезагрузки конфигурации.
+</para>
+<para lang="en">
+the "resolve" option of the "server" directive in the HTTP module
+"upstream" block, that allows to monitor changes to the list of IP addresses
+corresponding to a domain name,
+and automatically update it without the need of reloading configuration.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+опция "service" директивы "server" в блоке "upstream" HTTP-модуля,
+позволяющая получать списки адресов из DNS SRV записей,
+с базовой поддержкой приоритета.
+</para>
+<para lang="en">
+the "service" option of the "server" directive in the HTTP module
+"upstream" block, that allows to retrieve lists of addresses
+from DNS SRV records, with basic priority support.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+детальная информация и метрики по группам проксируемых HTTP-серверов в
+интерфейсе статистики, предоставляемом директивой "api".
+</para>
+<para lang="en">
+detailed information and metrics for the groups of HTTP upstream servers
+in the statistics interface provided by the "api" directive.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+autoindex выводит листинги директорий в естественном порядке.
+</para>
+<para lang="en">
+autoindex uses natural sorting order for directory listings.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.23.3.
+</para>
+<para lang="en">
+all functionality of nginx 1.23.3.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+сборка завершалась ошибкой из-за ложного предупреждение компилятора при
+использовании GCC 9 и старее с оптимизацией -O2 и выше.
+</para>
+<para lang="en">
+compilation failed due to false warning when using GCC 9 or older with the -O2
+or higher optimization.
+</para>
+</change>
+
+</changes>
+
+
+<changes ver="1.0.0" date="2022-10-27">
+
+<change type="feature">
+<para lang="ru">
+директива "api", реализующая HTTP RESTful интерфейс для получения в формате
+JSON базовой информации о веб-сервере, а также статистики по клиентским
+соединениям, зонам разделяемой памяти, DNS-запросам, HTTP-запросам, кэшу
+HTTP-ответов, сессиям модуля stream и зонам модулей limit_conn/limit_req.
+</para>
+<para lang="en">
+the "api" directive, that provides HTTP RESTful interface for accessing in JSON
+format basic information about a web server instance, as well as metrics of
+client connections, shared memory zones, DNS queries, HTTP requests,
+HTTP responses cache, TCP/UDP sessions of "stream" module, and zones of
+"limit_conn/limit_req" modules.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+директива "status_zone" в модуле http для указания зоны сбора статистики по
+запросам в "server" и "location" контекстах.
+</para>
+<para lang="en">
+the "status_zone" directive in "http" module for specifying zone to collect
+request metrics in "server" and "location" contexts.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+директива "status_zone" в модуле stream для указания зоны сбора статистики по
+TCP/UDP сессиям.
+</para>
+<para lang="en">
+the "status_zone" directive in "stream" module for specifying zone to collect
+TCP/UDP session metrics.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+параметр status_zone директивы resolver для указания зоны сбора статистики по
+DNS-запросам.
+</para>
+<para lang="en">
+the "status_zone" parameter of the "resolver" directive for specifying zone to
+collect metrics on DNS queries.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+переменная $angie_version, содержащая версию Angie.
+</para>
+<para lang="en">
+the $angie_version variable with version of Angie.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.23.2.
+</para>
+<para lang="en">
+all functionality of nginx 1.23.2.
+</para>
+</change>
+
+</changes>
+
+
+</change_log>
