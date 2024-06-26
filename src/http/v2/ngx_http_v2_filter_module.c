@@ -444,7 +444,7 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
         *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
 
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
-            if (nginx_ver[0] == '\0') {
+            if (angie_ver[0] == '\0') {
                 p = ngx_http_v2_write_value(angie_ver, (u_char *) ANGIE_VER,
                                             sizeof(ANGIE_VER) - 1, tmp);
                 angie_ver_len = p - angie_ver;
