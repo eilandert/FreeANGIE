@@ -12,7 +12,7 @@
 #define nginx_version      1027001
 #define NGINX_VERSION      "1.27.1"
 
-#define NGINX_NAME         "FreeNGINX"
+#define NGINX_NAME         "freenginx"
 #define NGINX_VER          NGINX_NAME "/" NGINX_VERSION
 
 #ifdef NGX_BUILD

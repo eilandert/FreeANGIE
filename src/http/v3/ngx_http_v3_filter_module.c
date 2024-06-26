@@ -148,7 +148,7 @@ ngx_http_v3_header_filter(ngx_http_request_t *r)
             n = sizeof(ANGIE_VER_BUILD) - 1;
 
         } else {
-            n = sizeof("Angie") - 1;
+            n = sizeof(ANGIE_NAME) - 1;
         }
 
         len += ngx_http_v3_encode_field_lri(NULL, 0,
@@ -331,8 +331,8 @@ ngx_http_v3_header_filter(ngx_http_request_t *r)
             n = sizeof(ANGIE_VER_BUILD) - 1;
 
         } else {
-            p = (u_char *) "Angie";
-            n = sizeof("Angie") - 1;
+            p = (u_char *) ANGIE_NAME;
+            n = sizeof(ANGIE_NAME) - 1;
         }
 
         ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,

@@ -115,7 +115,6 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
     ngx_http_core_srv_conf_t  *cscf;
     u_char                     addr[NGX_SOCKADDR_STRLEN];
 
-    static const u_char angie[5] = "\x84\x86\xa9\x8c\x5f";
 #if (NGX_HTTP_GZIP)
     static const u_char accept_encoding[12] =
         "\x8b\x84\x84\x2d\x69\x5b\x05\x44\x3c\x86\xaa\x6f";
@@ -229,7 +228,7 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
             len += 1 + angie_ver_build_len;
 
         } else {
-	    len += 1 + sizeof(angie);
+            len += 1 + angie_name_len;
         }
     }
 
@@ -445,8 +444,8 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
         *pos++ = ngx_http_v2_inc_indexed(NGX_HTTP_V2_SERVER_INDEX);
 
         if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_ON) {
-            if (ANGIE_VER[0] == '\0') {
-                p = ngx_http_v2_write_value(ANGIE_VER, (u_char *) ANGIE_VER,
+            if (nginx_ver[0] == '\0') {
+                p = ngx_http_v2_write_value(angie_ver, (u_char *) ANGIE_VER,
                                             sizeof(ANGIE_VER) - 1, tmp);
                 angie_ver_len = p - angie_ver;
             }
@@ -454,17 +453,23 @@ ngx_http_v2_header_filter(ngx_http_request_t *r)
             pos = ngx_cpymem(pos, angie_ver, angie_ver_len);
 
         } else if (clcf->server_tokens == NGX_HTTP_SERVER_TOKENS_BUILD) {
-            if (nginx_ver_build[0] == '\0') {
+            if (angie_ver_build[0] == '\0') {
                 p = ngx_http_v2_write_value(angie_ver_build,
                                             (u_char *) ANGIE_VER_BUILD,
                                             sizeof(ANGIE_VER_BUILD) - 1, tmp);
                 angie_ver_build_len = p - angie_ver_build;
             }
 
-            pos = ngx_cpymem(pos, nginx_ver_build, nginx_ver_build_len);
+            pos = ngx_cpymem(pos, angie_ver_build, angie_ver_build_len);
 
         } else {
-            pos = ngx_cpymem(pos, angie, sizeof(angie));
+            if (angie_name[0] == '\0') {
+                p = ngx_http_v2_write_value(angie_name, (u_char *) ANGIE_NAME,
+                                            sizeof(ANGIE_NAME) - 1, tmp);
+                angie_name_len = p - angie_name;
+            }
+
+            pos = ngx_cpymem(pos, angie_name, angie_name_len);
         }
     }
 
