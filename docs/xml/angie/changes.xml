@@ -5,6 +5,120 @@
 <change_log title="Angie">
 
 
+<changes ver="1.6.0" date="2024-06-28">
+
+<change type="feature">
+<para lang="ru">
+директива "sticky" и сопутствующие настройки в блоке "upstream" stream-модуля,
+позволяющие задать режим привязки сессий, при котором все соединения в рамках
+сессии будут направляться на один и тот же сервер.
+</para>
+<para lang="en">
+the "sticky" directive and related options in the "stream" module's "upstream"
+block, which allow to configure sticky sessions mode where all connections in
+the session are routed to the same server.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+извлечение значений Cookie из RDP-соединений с помощью директивы "rdp_preread"
+stream-модуля в переменные "$rdp_cookie" и "$rdp_cookie_NAME", что позволяет
+логгировать и привязывать RDP-сеансы клиентов к одним и тем же серверам при
+балансировке нагрузки.
+</para>
+<para lang="en">
+extraction of Cookie values from RDP connections using the "rdp_preread"
+directive in the "stream" module into "$rdp_cookie" и "$rdp_cookie_NAME"
+variables, which allows to log and stick RDP client sessions to particular
+servers while load balancing.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+возможность указать несколько директив "acme" в одном блоке "server",
+что позволяет настраивать получение сертификатов сразу двух типов в рамках
+данного виртуального сервера.
+</para>
+<para lang="en">
+support for multiple "acme" directives in a "server" block, which allows
+to configure obtaining two types of certificates at once for that virtual
+server.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+ключи командной строки "-m" и "-M" для отображения списка встроенных
+и загруженных модулей.
+</para>
+<para lang="en">
+command line options "-m" and "-M" to list built-in and loaded modules.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+поддержка BoringSSL в модуле ACME.
+</para>
+<para lang="en">
+support for BoringSSL in the ACME module.
+</para>
+</change>
+
+<change type="feature">
+<para lang="ru">
+вся функциональность nginx 1.27.0, включая поддержку виртуальных серверов в
+модуле "stream" и директиву "pass", позволяющую передавать принятые соединения
+на обработку в другие слушающие сокеты, в том числе модулей HTTP и Mail.
+</para>
+<para lang="en">
+all functionality of nginx 1.27.0, including support for virtual servers in
+the "stream" module and the "pass" directive, which allows to pass accepted
+connections for handling to another listening sockets, including HTTP and Mail
+modules.
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+запрос сертификата по протоколу ACME мог завершаться ошибкой в некоторых
+конфигурациях с сообщением в логе вида "[alert] getsockname() failed
+(9: Bad file descriptor)".
+</para>
+<para lang="en">
+certificate request via the ACME protocol could result in error on some
+configurations with a log message like "[alert] getsockname() failed
+(9: Bad file descriptor)".
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+запрос сертификата с большим количеством доменных имен по протоколу ACME
+мог завершаться ошибкой с сообщением в логе вида "[error] JSON parser error".
+</para>
+<para lang="en">
+certificate request with large number of domain names via the ACME protocol
+could result in error with a log message like "[error] JSON parser error".
+</para>
+</change>
+
+<change type="bugfix">
+<para lang="ru">
+ACME-клиенты в конфигурациях с несколькими директивами "error_log" могли
+выводить сообщения в несоответствующие логи.
+</para>
+<para lang="en">
+ACME clients in configurations with multiple "error_log" directives could
+log messages to irrelevant logs.
+</para>
+</change>
+
+</changes>
+
+
 <changes ver="1.5.2" date="2024-05-31">
 
 <change type="security">

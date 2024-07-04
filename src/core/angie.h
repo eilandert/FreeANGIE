@@ -7,10 +7,12 @@
 #ifndef _ANGIE_H_INCLUDED_
 #define _ANGIE_H_INCLUDED_
 
+#define ANGIE_NAME         "FreeAngie"
 
-#define angie_version      1005002
-#define ANGIE_NAME	   "FreeAngie"
-#define ANGIE_VERSION      "1.5.2"
+
+#define ANGIE_VERSION      "1.6.0"
+#define ANGIE_VER          "Angie/" ANGIE_VERSION
+
 #define ANGIE_VER          ANGIE_NAME "/" ANGIE_VERSION
 
 #ifdef NGX_BUILD

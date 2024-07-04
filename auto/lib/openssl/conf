@@ -122,6 +122,24 @@ else
             . auto/feature
         fi
 
+        if [ $ngx_found = no ]; then
+
+            # Homebrew on Apple Silicon
+
+            ngx_feature="OpenSSL library in /opt/homebrew/"
+            ngx_feature_path="/opt/homebrew/include"
+
+            if [ $NGX_RPATH = YES ]; then
+                ngx_feature_libs="-R/opt/homebrew/lib -L/opt/homebrew/lib -lssl -lcrypto"
+            else
+                ngx_feature_libs="-L/opt/homebrew/lib -lssl -lcrypto"
+            fi
+
+            ngx_feature_libs="$ngx_feature_libs $NGX_LIBDL $NGX_LIBPTHREAD"
+
+            . auto/feature
+        fi
+
         if [ $ngx_found = yes ]; then
             have=NGX_SSL . auto/have
             CORE_INCS="$CORE_INCS $ngx_feature_path"
@@ -168,14 +186,18 @@ END
                                   RSA_get0_key(NULL, NULL, NULL, NULL);
                                   EC_POINT_get_affine_coordinates(NULL, NULL, NULL, NULL, NULL);
                                   ECDSA_SIG_get0(NULL, NULL, NULL);
-                                  X509V3_EXT_conf_nid(NULL, NULL, NID_tlsfeature, NULL);
-                                  ASN1_TIME_to_tm(NULL, NULL)"
+                                  #ifndef OPENSSL_IS_BORINGSSL
+                                      X509V3_EXT_conf_nid(NULL, NULL, NID_tlsfeature, NULL);
+                                  #else
+                                      X509V3_EXT_nconf_nid(NULL, NULL, NID_server_auth, NULL);
+                                  #endif
+                                  "
                 . auto/feature
 
                 if [ $ngx_found = no ]; then
 cat << END
 
-$0: error: your OpenSSL library is too old for ACME support.
+$0: error: your OpenSSL library is missing some functionality required for ACME support.
 
 END
                         exit 1

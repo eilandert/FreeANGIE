@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2023 Web Server LLC
+ * Copyright (C) 2023-2024 Web Server LLC
  * Copyright (C) Roman Arutyunyan
  * Copyright (C) Nginx, Inc.
  */
@@ -2079,6 +2079,9 @@ ngx_stream_proxy_next_upstream(ngx_stream_session_t *s)
     if (u->peer.sockaddr) {
         u->peer.free(&u->peer, u->peer.data, NGX_PEER_FAILED);
         u->peer.sockaddr = NULL;
+#if (NGX_STREAM_UPSTREAM_SID)
+        u->peer.sid.len = 0;
+#endif
     }
 
     pscf = ngx_stream_get_module_srv_conf(s, ngx_stream_proxy_module);
@@ -2162,6 +2165,9 @@ ngx_stream_proxy_finalize(ngx_stream_session_t *s, ngx_uint_t rc)
 
         u->peer.free(&u->peer, u->peer.data, state);
         u->peer.sockaddr = NULL;
+#if (NGX_STREAM_UPSTREAM_SID)
+        u->peer.sid.len = 0;
+#endif
     }
 
     if (pc) {
@@ -2474,7 +2480,7 @@ ngx_stream_proxy_set_ssl(ngx_conf_t *cf, ngx_stream_proxy_srv_conf_t *pscf)
 #if (NGX_STREAM_PROXY_MULTICERT)
 
     if (pscf->ssl_certificates) {
-        ngx_stream_ssl_conf_t  scf;
+        ngx_stream_ssl_srv_conf_t  sscf;
 
         if (pscf->ssl_certificate_keys == NULL) {
             ngx_log_error(NGX_LOG_EMERG, cf->log, 0,
@@ -2489,18 +2495,18 @@ ngx_stream_proxy_set_ssl(ngx_conf_t *cf, ngx_stream_proxy_srv_conf_t *pscf)
             return NGX_ERROR;
         }
 
-        ngx_memzero(&scf, sizeof(ngx_stream_ssl_conf_t));
+        ngx_memzero(&sscf, sizeof(ngx_stream_ssl_srv_conf_t));
 
-        scf.certificates = pscf->ssl_certificates;
-        scf.certificate_keys = pscf->ssl_certificate_keys;
-        scf.passwords = pscf->ssl_passwords;
+        sscf.certificates = pscf->ssl_certificates;
+        sscf.certificate_keys = pscf->ssl_certificate_keys;
+        sscf.passwords = pscf->ssl_passwords;
 
-        if (ngx_stream_ssl_compile_certificates(cf, &scf) != NGX_OK) {
+        if (ngx_stream_ssl_compile_certificates(cf, &sscf) != NGX_OK) {
             return NGX_ERROR;
         }
-        pscf->ssl_passwords = scf.passwords;
-        pscf->ssl_certificate_values = scf.certificate_values;
-        pscf->ssl_certificate_key_values = scf.certificate_key_values;
+        pscf->ssl_passwords = sscf.passwords;
+        pscf->ssl_certificate_values = sscf.certificate_values;
+        pscf->ssl_certificate_key_values = sscf.certificate_key_values;
 
         if (pscf->ssl_certificate_values == NULL) {
 

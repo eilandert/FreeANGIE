@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# (C) 2022 Web Server LLC
+# (C) 2022-2024 Web Server LLC
 
 # Tests for upstream module with sticky feature.
 
@@ -15,7 +15,7 @@ BEGIN { use FindBin; chdir($FindBin::Bin); }
 
 use lib 'lib';
 use Test::Nginx qw/ :DEFAULT http_end /;
-use Test::Utils qw/ get_json /;
+use Test::Utils qw/ get_json annotate /;
 
 ###############################################################################
 
@@ -24,8 +24,6 @@ select STDOUT; $| = 1;
 
 plan(skip_all => '127.0.0.3 local address required')
 	unless defined IO::Socket::INET->new( LocalAddr => '127.0.0.3' );
-
-my $debug = 1; # set to 1 to enable
 
 my $t = Test::Nginx->new()
 	->has(qw/http proxy rewrite upstream_sticky/)->plan(24);
@@ -340,17 +338,6 @@ sub tc2 {
 
 ###############################################################################
 
-sub annotate {
-	my ($tc) = @_;
-
-	if ($debug != 1) {
-		return;
-	}
-
-	my $tname = (split(/::/, (caller(1))[3]))[1];
-	print("# ***  $tname: $tc \n");
-}
-
 # makes an HTTP request to passed $uri (with optional cookie)
 # returns hash with various response properties: backend, cookie, attrs, code
 sub get_sticky_reply {
@@ -393,9 +380,7 @@ EOF
 sub collect_cookies {
 	my ($uri_template, $secret_arg) = @_;
 
-	if ($debug) {
-		print("# Backend cookies [$uri_template]:\n");
-	}
+	note("# Backend cookies [$uri_template]:\n");
 
 	my %backend_cookies;
 	for (1 .. 5) {
@@ -412,9 +397,8 @@ sub collect_cookies {
 		my $backend = $result{backend};
 		my $cookie  = $result{cookie};
 
-		if ($debug) {
-			print("#	$backend <=> $cookie\n");
-		}
+		note("#	$backend <=> $cookie\n");
+
 		$backend_cookies{$backend} = $cookie;
 	}
 

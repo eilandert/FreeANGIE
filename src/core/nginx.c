@@ -1,5 +1,6 @@
 
 /*
+ * Copyright (C) 2024 Web Server LLC
  * Copyright (C) Igor Sysoev
  * Copyright (C) Nginx, Inc.
  */
@@ -11,6 +12,7 @@
 
 
 static void ngx_show_version_info(void);
+static void ngx_show_builtin_modules_info();
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle);
 static void ngx_cleanup_environment(void *data);
 static void ngx_cleanup_environment_variable(void *data);
@@ -183,6 +185,8 @@ ngx_module_t  ngx_core_module = {
 static ngx_uint_t   ngx_show_help;
 static ngx_uint_t   ngx_show_version;
 static ngx_uint_t   ngx_show_configure;
+static ngx_uint_t   ngx_show_builtin_modules;
+static ngx_uint_t   ngx_show_build_env;
 static u_char      *ngx_prefix;
 static u_char      *ngx_error_log;
 static u_char      *ngx_conf_file;
@@ -219,6 +223,22 @@ main(int argc, char *const *argv)
 
     if (ngx_show_version) {
         ngx_show_version_info();
+
+        if (!ngx_test_config) {
+            return 0;
+        }
+    }
+
+    if (ngx_show_builtin_modules && !ngx_show_loaded_modules) {
+        ngx_show_builtin_modules_info();
+
+        if (!ngx_test_config) {
+            return 0;
+        }
+    }
+
+    if (ngx_show_build_env) {
+        ngx_show_build_info();
 
         if (!ngx_test_config) {
             return 0;
@@ -405,17 +425,23 @@ main(int argc, char *const *argv)
 static void
 ngx_show_version_info(void)
 {
-    ngx_write_stderr("Angie version: " ANGIE_VER_BUILD NGX_LINEFEED);
+    if (ngx_show_version) {
+        ngx_write_stderr("Angie version: " ANGIE_VER_BUILD NGX_LINEFEED);
+    }
 
     if (ngx_show_help) {
+        ngx_write_stderr(NGX_LINEFEED);
         ngx_write_stderr(
-            "Usage: angie [-?hvVtTq] [-s signal] [-p prefix]" NGX_LINEFEED
+            "Usage: angie [-?hvVtTqmM] [-s signal] [-p prefix]" NGX_LINEFEED
             "             [-e filename] [-c filename] [-g directives]"
                           NGX_LINEFEED NGX_LINEFEED
             "Options:" NGX_LINEFEED
-            "  -?,-h         : this help" NGX_LINEFEED
+            "  -?,-h,--help  : this help" NGX_LINEFEED
             "  -v            : show version and exit" NGX_LINEFEED
             "  -V            : show version and configure options then exit"
+                               NGX_LINEFEED
+            "  -m            : show built-in modules and exit" NGX_LINEFEED
+            "  -M            : show built-in and loaded modules then exit"
                                NGX_LINEFEED
             "  -t            : test configuration and exit" NGX_LINEFEED
             "  -T            : test configuration, dump it and exit"
@@ -440,6 +466,9 @@ ngx_show_version_info(void)
                                ")" NGX_LINEFEED
             "  -g directives : set global directives out of configuration "
                                "file" NGX_LINEFEED NGX_LINEFEED
+
+            "  --build-env   : show build environment and exit" NGX_LINEFEED
+                               NGX_LINEFEED
         );
     }
 
@@ -467,6 +496,18 @@ ngx_show_version_info(void)
 #endif
 
         ngx_write_stderr("configure arguments:" NGX_CONFIGURE NGX_LINEFEED);
+    }
+}
+
+
+static void
+ngx_show_builtin_modules_info()
+{
+    ngx_uint_t  i;
+
+    for (i = 0; ngx_modules[i]; i++) {
+        ngx_write_stderr(ngx_module_names[i]);
+        ngx_write_stderr(NGX_LINEFEED);
     }
 }
 
@@ -879,18 +920,44 @@ ngx_get_options(int argc, char *const *argv)
 
         if (*p++ != '-') {
             ngx_log_stderr(0, "invalid option: \"%s\"", argv[i]);
-            return NGX_ERROR;
+            goto invalid_option;
+        }
+
+        if (*p == 0) {
+            ngx_log_stderr(0, "incomplete option: \"%s\"", argv[i]);
+            goto invalid_option;
         }
 
         while (*p) {
 
             switch (*p++) {
 
+            case '-':
+
+                if (*p == 0) {
+                    ngx_log_stderr(0, "incomplete option: \"%s\"", argv[i]);
+                    goto invalid_option;
+                }
+
+                if (*p == '?' || *p == 'h') {
+                    ngx_show_version = 1;
+                    ngx_show_help = 1;
+                    return NGX_OK;
+                }
+
+                if (ngx_strcmp(p, "build-env") == 0) {
+                    ngx_show_build_env = 1;
+                    goto next;
+                }
+
+                ngx_log_stderr(0, "invalid option: \"%s\"", argv[i]);
+                goto invalid_option;
+
             case '?':
             case 'h':
                 ngx_show_version = 1;
                 ngx_show_help = 1;
-                break;
+                return NGX_OK;
 
             case 'v':
                 ngx_show_version = 1;
@@ -899,6 +966,14 @@ ngx_get_options(int argc, char *const *argv)
             case 'V':
                 ngx_show_version = 1;
                 ngx_show_configure = 1;
+                break;
+
+            case 'm':
+                ngx_show_builtin_modules = 1;
+                break;
+
+            case 'M':
+                ngx_show_loaded_modules = 1;
                 break;
 
             case 't':
@@ -996,11 +1071,11 @@ ngx_get_options(int argc, char *const *argv)
                 }
 
                 ngx_log_stderr(0, "invalid option: \"-s %s\"", ngx_signal);
-                return NGX_ERROR;
+                goto invalid_option;
 
             default:
                 ngx_log_stderr(0, "invalid option: \"%c\"", *(p - 1));
-                return NGX_ERROR;
+                goto invalid_option;
             }
         }
 
@@ -1010,6 +1085,16 @@ ngx_get_options(int argc, char *const *argv)
     }
 
     return NGX_OK;
+
+invalid_option:
+
+    ngx_show_help = 1;
+    ngx_show_version = 0;
+    ngx_show_configure = 0;
+
+    ngx_show_version_info();
+
+    return NGX_ERROR;
 }
 
 
