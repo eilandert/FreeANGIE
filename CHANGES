@@ -37,6 +37,22 @@ Changes with Angie 1.6.0                                         28 Jun 2024
        directives could log messages to irrelevant logs.
 
 
+Changes with freenginx 1.27.2                                    09 Jul 2024
+
+    *) Feature: now maximum error logging rate can be limited with the
+       "rate" parameter of the "error_log" directive; by default the limit
+       is 1000 messages per second.
+
+    *) Bugfix: in resolver.
+       Thanks to Kirill A. Korinsky.
+
+    *) Bugfix: the "proxy_no_cache" directive was not checked when caching
+       errors.
+
+    *) Bugfix: a block used in the "stub" parameter of the "include" SSI
+       directive might be sent twice.
+
+
 Changes with freenginx 1.27.1                                    04 Jun 2024
 
     *) Feature: the "max_headers" directive.
